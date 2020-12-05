@@ -1,0 +1,7 @@
+results
+.project
+.settings
+.pydevproject
+.tox
+tox.log
+.coverage
