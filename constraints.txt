@@ -1,5 +1,5 @@
 kubernetes==9.0.0
 requests==2.22.0
 wget==3.2
-rsa==4.1
+rsa==4.7
 urllib3==1.25.9
