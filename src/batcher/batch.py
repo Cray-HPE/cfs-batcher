@@ -1,4 +1,4 @@
-# Copyright 2020 Hewlett Packard Enterprise Development LP
+# Copyright 2020-2021 Hewlett Packard Enterprise Development LP
 
 from collections import defaultdict, deque
 import logging
@@ -225,12 +225,12 @@ class Batch(object):
             status = self.get_status()
             if status == 'complete' or status == 'failed':
                 incomplete_components = components.get_components(
-                    status='pending', ids=[c.id for c in self.components])
+                    status='pending', ids=','.join([c.id for c in self.components]))
                 if incomplete_components:
-                    self.component_map = {c.id: c for c in self.components}
+                    component_map = {c.id: c for c in self.components}
                     for component_data in incomplete_components:
                         current_component = Component(component_data)
-                        self._check_component_complete(current_component, status)
+                        self._check_component_complete(current_component, status, component_map)
                 complete = True
                 if status == 'complete':
                     success = True
@@ -242,20 +242,20 @@ class Batch(object):
             complete = False
         return complete, success
 
-    def _check_component_complete(self, current_component, status):
-        component = self.component_map[current_component.id]
+    def _check_component_complete(self, current_component, status, component_map):
+        component = component_map[current_component.id]
         if component.config_key == current_component.config_key:
             if status == 'complete':
                 # This can occur when the desired configuration does attempt any changes to the
                 # component, so Ansible does not report any status for the component
                 LOGGER.debug('Component {} appears to have been skipped'.format(component.id))
-                component.set_status('_skipped', session_name=self.session_name)
+                current_component.set_status('_skipped', session_name=self.session_name)
             if status == 'failed' and component.error_count == current_component.error_count:
                 # This can occur when the sessions are failing prior to Ansible running, such as
                 # an invalid desired configuration.
                 LOGGER.debug('Component {} appears to have an incorrect error count'.format(
                     component.id))
-                component.increment_error_count(session_name=self.session_name)
+                current_component.increment_error_count(session_name=self.session_name)
 
     @property
     def full(self):
