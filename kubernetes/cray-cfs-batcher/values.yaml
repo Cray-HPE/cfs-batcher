@@ -39,6 +39,13 @@ cray-service:
           - "batcher.liveness"
         initialDelaySeconds: 10
         periodSeconds: 30
+      resources:
+        requests:
+          memory: "100Mi"
+          cpu: "150m"
+        limits:
+          memory: "250Mi"
+          cpu: "500m"
   volumes:
     ca-vol:
       name: ca-vol
