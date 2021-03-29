@@ -1,7 +1,7 @@
-# Copyright 2019-2020 Hewlett Packard Enterprise Development LP
+# Copyright 2019-2021 Hewlett Packard Enterprise Development LP
 
 # Base image
-FROM dtr.dev.cray.com/baseos/alpine:3.12.0 as base
+FROM arti.dev.cray.com/baseos-docker-master-local/alpine:3.12.4 as base
 WORKDIR /app
 COPY constraints.txt requirements.txt ./
 RUN apk add --no-cache gcc g++ python3-dev py3-pip musl-dev libffi-dev openssl-dev && \
