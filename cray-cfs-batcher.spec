@@ -1,6 +1,6 @@
-# Copyright 2020 Cray Inc. All Rights Reserved.
+# Copyright 2020-2021 Hewlett Packard Enterprise Development LP
 Name: cray-cfs-batcher-crayctldeploy
-License: Cray Software License Agreement
+License: MIT
 Summary: Cray Configuration Framework Batcher
 Group: System/Management
 Version: %(cat .rpm_version)
