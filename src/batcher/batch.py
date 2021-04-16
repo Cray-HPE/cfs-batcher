@@ -20,7 +20,7 @@ MAX_BACKOFF = 60 * 60 * 6  # 24 hours
 The combination of batch manager and batch ensure that a desired
 configuration for a component is not added and run multiple times.
 
-To avoid unecessary configuration, a batch tracks the associated CFS
+To avoid unnecessary configuration, a batch tracks the associated CFS
 session.  This ensures that components are not queued for configuration if
 they are already queued, or are currently being configured.  On completion
 of the session, there are additional checks to ensure the component's
@@ -93,6 +93,7 @@ class BatchManager(object):
         """Adds a component to the appropriate batch"""
         if component in self.components:
             return
+        self.components.add(component)
         for batch in self.batches[component.config_key]:
             if batch.try_add(component):
                 break
@@ -112,7 +113,7 @@ class BatchManager(object):
                 if batch.try_send():
                     n_complete += 1
         if n_complete:
-            msg = 'Successfully submited {} batches for configuration'
+            msg = 'Successfully submitted {} batches for configuration'
             LOGGER.info(msg.format(n_complete))
 
     """
