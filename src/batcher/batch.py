@@ -93,6 +93,7 @@ class BatchManager(object):
         """Adds a component to the appropriate batch"""
         if component in self.components:
             return
+        self.components.add(component)
         for batch in self.batches[component.config_key]:
             if batch.try_add(component):
                 break
