@@ -1,7 +1,8 @@
-# © Copyright 2020 Hewlett Packard Enterprise Development LP
+# © Copyright 2020-2021 Hewlett Packard Enterprise Development LP
 
 import logging
 import os
+import threading
 from time import sleep
 
 from .batch import BatchManager
@@ -14,6 +15,18 @@ DEFAULT_LOG_LEVEL = logging.INFO
 LOGGER = logging.getLogger(__name__)
 
 
+def monotonic_liveliness_heartbeat():
+    """
+    Periodically add a timestamp to disk; this allows for reporting of basic
+    health at a minimum rate. This prevents the pod being marked as dead if
+    a period of no events have been monitored from k8s for an extended
+    period of time.
+    """
+    while True:
+        Timestamp()
+        sleep(10)
+
+
 def setup_logging():
     log_format = "%(asctime)-15s - %(levelname)-7s - %(name)s - %(message)s"
     requested_log_level = os.environ.get('CFS_LOG_LEVEL', DEFAULT_LOG_LEVEL)
@@ -22,10 +35,12 @@ def setup_logging():
 
 
 def main():
-    Timestamp()
+    # Create a liveness thread to indicate overall health of the pod
+    heartbeat = threading.Thread(target=monotonic_liveliness_heartbeat, args=())
+    heartbeat.start()
+
     manager = BatchManager()
     while True:
-        Timestamp()
         sleep(options.batcher_check_interval)
         options.update()
         manager.check_status()
