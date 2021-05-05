@@ -13,8 +13,7 @@ from .component import Component
 LOGGER = logging.getLogger(__name__)
 
 RECENT_SESSIONS_SIZE = 20
-MIN_BACKOFF = 60
-MAX_BACKOFF = 60 * 60 * 6  # 24 hours
+STARTING_BACKOFF = 60
 
 """
 The combination of batch manager and batch ensure that a desired
@@ -132,9 +131,9 @@ class BatchManager(object):
 
         if time.time() - self.backoff_start >= self.current_backoff:  # The previous backoff expired
             if self.current_backoff == 0:
-                self.current_backoff = MIN_BACKOFF
+                self.current_backoff = min(options.max_backoff, STARTING_BACKOFF)
             else:
-                self.current_backoff = min(MAX_BACKOFF, self.current_backoff * 2)
+                self.current_backoff = min(options.max_backoff, self.current_backoff * 2)
             LOGGER.warning('The {} most recent configuration sessions have failed. Halting session '
                            'creation for {} seconds'.format(RECENT_SESSIONS_SIZE,
                                                             self.current_backoff))
