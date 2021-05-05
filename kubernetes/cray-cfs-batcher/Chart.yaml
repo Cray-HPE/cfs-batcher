@@ -2,7 +2,7 @@ apiVersion: v1
 description: "Kubernetes resources for cfs-batcher"
 name: "cray-cfs-batcher"
 home: "scms/cfs-batcher"
-version: 1.4.9
+version: 1.4.10
 keywords:
   - cfs
   - cfs-batcher

@@ -16,6 +16,7 @@ DEFAULTS = {
     'batchSize': 25,
     'batchWindow': 60,
     'defaultBatcherRetryPolicy': 3,
+    'batcherMaxBackoff': 60 * 60,  # 1 hour
 }
 
 
@@ -89,6 +90,10 @@ class Options():
     @property
     def default_playbook(self):
         return self.get_option('defaultPlaybook', str)
+
+    @property
+    def max_backoff(self):
+        return self.get_option('batcherMaxBackoff', str)
 
 
 options = Options()
