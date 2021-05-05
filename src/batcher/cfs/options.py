@@ -1,4 +1,4 @@
-# Copyright 2020 Hewlett Packard Enterprise Development LP
+# Copyright 2020-2021 Hewlett Packard Enterprise Development LP
 
 import logging
 import json
@@ -15,7 +15,7 @@ DEFAULTS = {
     'batcherCheckInterval': 10,
     'batchSize': 25,
     'batchWindow': 60,
-    'defaultBatcherRetryPolicy': 1
+    'defaultBatcherRetryPolicy': 3,
 }
 
 
