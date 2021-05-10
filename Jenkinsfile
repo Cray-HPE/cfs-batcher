@@ -9,6 +9,7 @@ dockerBuildPipeline {
     description = "Cray Management System - Configuration Framework Batcher"
     product = "csm"
     enableSonar = true
+    buildPrepScript = "update_versions.sh"
     
     githubPushRepo = "Cray-HPE/cfs-batcher"
     /*
