@@ -1,6 +1,5 @@
 #!/bin/bash
-
-# Copyright 2019, 2021 Hewlett Packard Enterprise Development LP
+# Copyright 2021 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -23,6 +22,6 @@
 # (MIT License)
 
 ./install_cms_meta_tools.sh || exit 1
-./cms_meta_tools/copyright_license_check/copyright_license_check.sh || exit 1
+./cms_meta_tools/update_versions/update_versions.sh || exit 1
 rm -rf ./cms_meta_tools
 exit 0
