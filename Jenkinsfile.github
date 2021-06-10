@@ -20,6 +20,19 @@ pipeline {
     }
 
     stages {
+        stage("Build Prep") {
+            steps {
+                sh "make build_prep"
+            }
+
+        }
+
+        stage("Lint") {
+            steps {
+                sh "make lint"
+            }
+        }
+
         stage("Build") {
             parallel {
                 stage('Image') {
