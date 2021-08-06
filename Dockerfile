@@ -21,7 +21,7 @@
 # (MIT License)
 
 # Base image
-FROM arti.dev.cray.com/baseos-docker-master-local/alpine:3.13.5 as base
+FROM artifactory.algol60.net/docker.io/alpine:latest  as base
 WORKDIR /app
 COPY constraints.txt requirements.txt ./
 RUN apk add --no-cache gcc g++ python3-dev py3-pip musl-dev libffi-dev openssl-dev && \
