@@ -61,11 +61,15 @@ def main():
 
     manager = BatchManager()
     while True:
-        sleep(options.batcher_check_interval)
-        options.update()
-        manager.check_status()
-        manager.update_batches()
-        manager.send_batches()
+        try:
+            sleep(options.batcher_check_interval)
+            options.update()
+            manager.check_status()
+            manager.update_batches()
+            manager.send_batches()
+        except Exception as e:
+            LOGGER.error('Unexpected error occurred: {}'.format(e))
+            sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.
 
 
 if __name__ == '__main__':
