@@ -113,7 +113,7 @@ class Options():
 
     @property
     def max_backoff(self):
-        return self.get_option('batcherMaxBackoff', str)
+        return self.get_option('batcherMaxBackoff', int)
 
 
 options = Options()
