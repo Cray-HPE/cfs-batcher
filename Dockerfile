@@ -47,6 +47,8 @@ CMD [ "./docker_codestyle_entry.sh" ]
 
 # Application Image
 FROM base as application
+RUN adduser -g "CFS Batcher User" --uid 30999 --disabled-password appuser
+USER appuser
 ENV PYTHONPATH "/app/lib/"
 ENTRYPOINT [ "python3", "-m", "batcher" ]
 
