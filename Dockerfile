@@ -47,6 +47,7 @@ CMD [ "./docker_codestyle_entry.sh" ]
 
 # Application Image
 FROM base as application
+USER nobody:nobody
 ENV PYTHONPATH "/app/lib/"
 ENTRYPOINT [ "python3", "-m", "batcher" ]
 
