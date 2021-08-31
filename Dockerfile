@@ -21,10 +21,13 @@
 # (MIT License)
 
 # Base image
-FROM artifactory.algol60.net/docker.io/alpine:latest  as base
+FROM arti.dev.cray.com/baseos-docker-master-local/alpine:3.13 as base
 WORKDIR /app
 COPY constraints.txt requirements.txt ./
-RUN apk add --no-cache gcc g++ python3-dev py3-pip musl-dev libffi-dev openssl-dev && \
+RUN apk add --upgrade --no-cache apk-tools &&  \
+	apk update && \
+	apk add --no-cache gcc g++ python3-dev py3-pip musl-dev libffi-dev openssl-dev && \
+	apk -U upgrade --no-cache && \
     PIP_INDEX_URL=https://arti.dev.cray.com:443/artifactory/api/pypi/pypi-remote/simple \
     pip3 install --no-cache-dir -U pip && \
     pip3 install --no-cache-dir -r requirements.txt
