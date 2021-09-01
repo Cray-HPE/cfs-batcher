@@ -26,7 +26,6 @@ from .cfs import components
 from .cfs.options import options
 
 LOGGER = logging.getLogger(__name__)
-CONFIG_KEY_FIELDS = ['cloneUrl', 'playbook', 'commit']
 
 
 class Component(object):
@@ -38,8 +37,9 @@ class Component(object):
         self.error_count = data['errorCount']
         self.tags = data.get('tags', {})
         self.config_name = data['desiredConfig']
+        # config_limit - The layers that still need to be configured
         config_limit = []
-        desiredState = data.get('desiredState', {})
+        desiredState = data.get('desiredState', [])
         for i, layer in enumerate(desiredState):
             if layer.get('status', '').lower() == 'pending':
                 config_limit.append(str(i))
@@ -47,7 +47,16 @@ class Component(object):
             self.config_limit = ''
         else:
             self.config_limit = ','.join(config_limit)
-        self.config_key = self.config_name + ':' + self.config_limit
+        # recent_status - Identifies if the most recent config attempt was failed/incomplete
+        #   This separates batches for components that failed, and components that were incomplete
+        self.recent_status = ''
+        state = self.data.get('state', [])
+        if len(state):
+            recent_state = state[-1]
+            if '_' in recent_state['commit']:
+                self.recent_status = recent_state['commit'].split('_')[-1]
+        # batch_key - Used to determine like components that can be configured together
+        self.batch_key = self.config_name + ':' + self.config_limit + ':' + self.recent_status
 
     def __eq__(self, other):
         """Overrides the default implementation"""
@@ -63,7 +72,7 @@ class Component(object):
         return hash(self.id)
 
     def set_status(self, status, session_name=None, error_count=None, all_layers=True):
-        desiredState = self.data.get('desiredState', {})
+        desiredState = self.data.get('desiredState', [])
         for layer in desiredState:
             if layer.get('status', '').lower() == 'pending':
                 new_state = {
@@ -83,3 +92,15 @@ class Component(object):
         error_count = self.error_count + 1
         self.set_status('_failed', session_name=session_name, error_count=error_count,
                         all_layers=False)
+
+    def desired_config_changed(self, updated_component):
+        if self.config_name != updated_component.config_name:
+            return True
+        state1 = self.data.get('desiredState', [])
+        state2 = updated_component.data.get('desiredState', [])
+        if len(state1) != len(state2):
+            return True
+        for layer1, layer2 in zip(state1, state2):
+            if layer1['commit'] != layer2['commit'] or layer1['playbook'] != layer2['playbook']:
+                return True
+        return False
