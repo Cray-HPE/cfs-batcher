@@ -113,12 +113,12 @@ class BatchManager(object):
         if component in self.components:
             return
         self.components.add(component)
-        for batch in self.batches[component.config_key]:
+        for batch in self.batches[component.batch_key]:
             if batch.try_add(component):
                 break
         else:
             new_batch = Batch(component)
-            self.batches[component.config_key].append(new_batch)
+            self.batches[component.batch_key].append(new_batch)
 
     def send_batches(self):
         """Sends any batches that are ready"""
@@ -176,8 +176,8 @@ class BatchManager(object):
             if 'batcher' in session.get('name', '') and status != 'complete':
                 batch = Batch._rebuild_from_session(session)
                 if batch.components:
-                    config_key = next(iter(batch.components)).config_key
-                    self.batches[config_key].append(batch)
+                    batch_key = next(iter(batch.components)).batch_key
+                    self.batches[batch_key].append(batch)
                     n += 1
         if n:
             LOGGER.info('Rebuilt previous state.  Found {} incomplete sessions/batches.'.format(n))
@@ -244,13 +244,7 @@ class Batch(object):
         try:
             status = self.get_status()
             if status == 'complete' or status == 'failed':
-                incomplete_components = components.get_components(
-                    status='pending', ids=','.join([c.id for c in self.components]))
-                if incomplete_components:
-                    component_map = {c.id: c for c in self.components}
-                    for component_data in incomplete_components:
-                        current_component = Component(component_data)
-                        self._check_component_complete(current_component, status, component_map)
+                self._handle_incomplete_components(status)
                 complete = True
                 if status == 'complete':
                     success = True
@@ -262,20 +256,81 @@ class Batch(object):
             complete = False
         return complete, success
 
-    def _check_component_complete(self, current_component, status, component_map):
-        component = component_map[current_component.id]
-        if component.config_key == current_component.config_key:
-            if status == 'complete':
-                # This can occur when the desired configuration does attempt any changes to the
-                # component, so Ansible does not report any status for the component
-                LOGGER.debug('Component {} appears to have been skipped'.format(component.id))
-                current_component.set_status('_skipped', session_name=self.session_name)
-            if status == 'failed' and component.error_count == current_component.error_count:
-                # This can occur when the sessions are failing prior to Ansible running, such as
-                # an invalid desired configuration.
-                LOGGER.debug('Component {} appears to have an incorrect error count'.format(
-                    component.id))
+    def _handle_incomplete_components(self, session_status):
+        """
+        This handles two cases where Ansible doesn't update component status.
+        1) Ansible was successful but doesn't target the component in question.
+        2) Ansible or the pod encounter a failure before tasks can run, such as in inventory.
+        """
+        incomplete_components = []
+        if session_status == 'complete':
+            incomplete_components = components.get_components(
+                status='pending', ids=','.join([c.id for c in self.components]))
+            if not incomplete_components:
+                return
+        elif session_status == 'failed':
+            # All components are needed to determine failed layers
+            updated_components = components.get_components(
+                ids=','.join([c.id for c in self.components]))
+            incomplete_components = [component for component in updated_components
+                                     if component['configurationStatus'] == 'pending']
+            self.ansible_failure = self._check_ansible_failure(updated_components)
+        component_starting_states_map = {c.id: c for c in self.components}
+        for component_data in incomplete_components:
+            current_component = Component(component_data)
+            starting_component = component_starting_states_map[current_component.id]
+            self._check_component_complete(starting_component, current_component, session_status)
+
+    def _check_ansible_failure(self, updated_components):
+        component_starting_states_map = {c.id: c for c in self.components}
+        for component_data in updated_components:
+            current_component = Component(component_data)
+            starting_component = component_starting_states_map[current_component.id]
+            starting_state = starting_component.data.get('state', [])
+            current_state = current_component.data.get('state', [])
+            if current_state and '_failed' in current_state[-1]['commit'] and \
+                    (not starting_state or
+                     current_state[-1]['lastUpdated'] != starting_state[-1]['lastUpdated']):
+                return True
+        return False
+
+    def _check_component_complete(self, component, current_component, session_status):
+        LOGGER.debug('Checking incomplete component {}'.format(component.id))
+        if component.desired_config_changed(current_component):
+            # The component is in a new pending state because the desired config changed
+            # Let CFS rerun and sort this case out
+            LOGGER.debug('Desired config changed for component {}'.format(component.id))
+            return
+
+        if session_status == 'complete':
+            # This can occur when the desired configuration does not attempt any changes to the
+            #   component, so Ansible does not report any status for the component
+            # This may be true of any number of layers, but because the session is complete
+            #   (and successful), we know all skipped layers were intentional on Ansible's part.
+            LOGGER.debug('Updating component {} for skipped layers (session success)'.format(
+                component.id))
+            current_component.set_status('_skipped', session_name=self.session_name)
+            return
+
+        if session_status == 'failed':
+            if not self.ansible_failure:
+                # If session failure was not due to an Ansible component failure, the failure is
+                #   outside Ansible, such as an invalid desired configuration.
+                LOGGER.debug(
+                    'Incrementing error count for component {} due to session failure'.format(
+                        component.id))
                 current_component.increment_error_count(session_name=self.session_name)
+                return
+            # else:
+            #   It is possible in this case that some layers were skipped before a failure.
+            #   However Ansible failures are a common case, and it is tricky to determine what
+            #       which layer the failure occurred on and which components and layers should
+            #       be marked skipped.
+            #   Because there is no harm in rerunning a playbook that doesn't impact a component,
+            #       I am not specifically handling this case both to save time in component checking
+            #       and to reduce complexity that can cause unexpected behaviors.
+
+        LOGGER.debug('Component {} requires additional configuration'.format(component.id))
 
     @property
     def full(self):
