@@ -8,7 +8,7 @@ keywords:
   - cfs-batcher
   - cray-cfs-batcher
 sources:
-  - "https://stash.us.cray.com/projects/SCMS/repos/cfs-batcher/browse"
+  - "https://github.com/Cray-HPE/cfs-batcher"
 maintainers:
   - name: rbak
     email: ryan.bak@hpe.com
