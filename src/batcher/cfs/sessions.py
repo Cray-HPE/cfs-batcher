@@ -95,6 +95,19 @@ def create_session(config, config_limit='', components=[], tags=None):
     return success, name
 
 
+def delete_session(name):
+    """Create a configuration (CFS) session"""
+    url = ENDPOINT + '/' + name
+    session = requests_retry_session()
+    try:
+        response = session.delete(url)
+        response.raise_for_status()
+    except (ConnectionError, MaxRetryError) as e:
+        LOGGER.error("Unable to connect to CFS: {}".format(e))
+    except HTTPError as e:
+        LOGGER.error("Unexpected response from CFS: {}".format(e))
+
+
 def get_session_status(name):
     """Get the status for configuration (CFS) session"""
     data = get_session(name)
