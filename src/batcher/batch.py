@@ -34,6 +34,7 @@ LOGGER = logging.getLogger(__name__)
 
 RECENT_SESSIONS_SIZE = 20
 STARTING_BACKOFF = 60
+MAX_PENDING_WAIT = 300
 
 """
 The combination of batch manager and batch ensure that a desired
@@ -197,12 +198,14 @@ class Batch(object):
         self.config_limit = component.config_limit
 
         self.session_name = ''
-        self.start = time.time()
+        self.batch_start = None  # Starts when the session is sent/loaded
+        self.batch_window_start = time.time()
 
     @classmethod
     def _rebuild_from_session(cls, session):
         batch = Batch(None)
         batch.session_name = session.get('name', '')
+        batch.batch_start = time.time()
         config_data = session['configuration']
         batch.config_name = config_data.get('name')
         batch.config_limit = config_data.get('limit')
@@ -234,6 +237,7 @@ class Batch(object):
                 tags=tags)
             if success:
                 self.session_name = session_name
+                self.batch_start = time.time()
             return success
         return False
 
@@ -250,6 +254,11 @@ class Batch(object):
                     success = True
             elif status == 'deleted':
                 LOGGER.info('Session {} no longer exists'.format(self.session_name))
+                complete = True
+            elif status == 'pending' and (time.time() - self.batch_start > MAX_PENDING_WAIT):
+                LOGGER.warning('Session {} is stuck in pending and will be deleted.'.format(
+                    self.session_name))
+                sessions.delete_session(self.session_name)
                 complete = True
         except Exception as e:
             LOGGER.warning('Unexpected exception checking session status: {}'.format(e))
@@ -342,7 +351,7 @@ class Batch(object):
     @property
     def overdue(self):
         """True if the batch has been waiting too long"""
-        if (time.time() - self.start) > options.batch_window:
+        if (time.time() - self.batch_window_start) > options.batch_window:
             return True
         return False
 
@@ -376,4 +385,3 @@ class Batch(object):
             if all([value == component.tags[key] for component in self.components]):
                 tags[key] = value
         return tags
-
