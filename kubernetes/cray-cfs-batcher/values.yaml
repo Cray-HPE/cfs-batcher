@@ -14,7 +14,8 @@ cray-service:
     cray-cfs-batcher:
       name: cray-cfs-batcher
       image:
-        repository: cray/cray-cfs-batcher
+        repository: artifactory.algol60.net/csm-docker/stable/cray-cfs-batcher
+        # tag defaults to chart appVersion
       ports:
       - name: http
         containerPort: 80
