@@ -1,14 +1,24 @@
-apiVersion: v1
-description: "Kubernetes resources for cfs-batcher"
-name: "cray-cfs-batcher"
-home: "scms/cfs-batcher"
-version: @VERSION@
+apiVersion: v2
+name: cray-cfs-batcher
+version: 0.0.0
+description: Kubernetes resources for cfs-batcher
 keywords:
-  - cfs
-  - cfs-batcher
-  - cray-cfs-batcher
+- cfs
+- cfs-batcher
+- cray-cfs-batcher
+home: https://github.com/Cray-HPE/cfs-batcher
 sources:
-  - "https://github.com/Cray-HPE/cfs-batcher"
+- https://github.com/Cray-HPE/cfs-batcher
+dependencies:
+- name: cray-service
+  version: ^7.0.0
+  repository: https://artifactory.algol60.net/artifactory/csm-helm-charts/
 maintainers:
-  - name: rbak
-    email: ryan.bak@hpe.com
+- name: rbak-hpe
+  email: ryan.bak@hpe.com
+appVersion: 0.0.0
+annotations:
+  artifacthub.io/images: |
+    - name: cray-cfs-batcher
+      image: artifactory.algol60.net/csm-docker/stable/cray-cfs-batcher:0.0.0
+  artifacthub.io/license: MIT
