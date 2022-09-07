@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Pending session timeout is now configurable using an option
+- Logging level is now controlled by a CFS option
 
 ### Fixed
 - Spelling corrections.

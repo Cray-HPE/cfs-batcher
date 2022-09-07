@@ -40,6 +40,7 @@ DEFAULTS = {
     'batcherMaxBackoff': 60 * 60,  # 1 hour
     'batcherDisable': False,
     'batcherPendingTimeout': 300,
+    'loggingLevel': 'INFO'
 }
 
 
@@ -125,6 +126,10 @@ class Options():
     @property
     def pending_timeout(self):
         return self.get_option('batcherPendingTimeout', int)
+
+    @property
+    def logging_level(self):
+        return self.get_option('loggingLevel', str)
 
 
 options = Options()
