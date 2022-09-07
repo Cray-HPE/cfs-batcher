@@ -39,6 +39,7 @@ DEFAULTS = {
     'defaultBatcherRetryPolicy': 3,
     'batcherMaxBackoff': 60 * 60,  # 1 hour
     'batcherDisable': False,
+    'batcherPendingTimeout': 300,
 }
 
 
@@ -120,5 +121,10 @@ class Options():
     @property
     def disable(self):
         return self.get_option('batcherDisable', bool)
+
+    @property
+    def pending_timeout(self):
+        return self.get_option('batcherPendingTimeout', int)
+
 
 options = Options()

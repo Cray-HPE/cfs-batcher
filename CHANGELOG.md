@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added an option to disable batcher
 
+### Changed
+- Pending session timeout is now configurable using an option
+
 ### Fixed
 - Spelling corrections.
 
