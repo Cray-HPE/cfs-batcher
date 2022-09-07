@@ -67,8 +67,9 @@ def main():
             sleep(options.batcher_check_interval)
             options.update()
             manager.check_status()
-            manager.update_batches()
-            manager.send_batches()
+            if not options.disable:
+                manager.update_batches()
+                manager.send_batches()
         except Exception as e:
             LOGGER.error('Unexpected error occurred: {}'.format(e))
             sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.
