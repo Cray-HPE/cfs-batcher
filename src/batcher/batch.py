@@ -256,7 +256,7 @@ class Batch(object):
             elif status == 'deleted':
                 LOGGER.info('Session {} no longer exists'.format(self.session_name))
                 complete = True
-            elif status == 'pending' and (time.time() - self.batch_start > MAX_PENDING_WAIT):
+            elif status == 'pending' and (time.time() - self.batch_start > options.pending_timeout):
                 LOGGER.warning('Session {} is stuck in pending and will be deleted.'.format(
                     self.session_name))
                 sessions.delete_session(self.session_name)
