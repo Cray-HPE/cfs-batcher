@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Spelling corrections.
+- Update Chart with correct image and chart version strings during builds.
 
 ## [1.7.35] 2022-03-15
 ### Changed

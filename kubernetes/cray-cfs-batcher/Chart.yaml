@@ -23,7 +23,7 @@
 #
 apiVersion: v2
 name: cray-cfs-batcher
-version: 0.0.0
+version: 0.0.0-chart
 description: Kubernetes resources for cfs-batcher
 keywords:
 - cfs
@@ -39,9 +39,9 @@ dependencies:
 maintainers:
 - name: rbak-hpe
   email: ryan.bak@hpe.com
-appVersion: 0.0.0
+appVersion: 0.0.0-image
 annotations:
   artifacthub.io/images: |
     - name: cray-cfs-batcher
-      image: artifactory.algol60.net/csm-docker/stable/cray-cfs-batcher:0.0.0
+      image: artifactory.algol60.net/csm-docker/stable/cray-cfs-batcher:0.0.0-image
   artifacthub.io/license: MIT
