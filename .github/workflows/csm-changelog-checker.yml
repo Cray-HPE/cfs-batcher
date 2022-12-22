@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2021-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2022 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,27 +21,21 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-apiVersion: v2
-name: cray-cfs-batcher
-version: 0.0.0-chart
-description: Kubernetes resources for cfs-batcher
-keywords:
-- cfs
-- cfs-batcher
-- cray-cfs-batcher
-home: https://github.com/Cray-HPE/cfs-batcher
-sources:
-- https://github.com/Cray-HPE/cfs-batcher
-dependencies:
-- name: cray-service
-  version: ^7.0.0
-  repository: https://artifactory.algol60.net/artifactory/csm-helm-charts/
-maintainers:
-- name: rbak-hpe
-  email: ryan.bak@hpe.com
-appVersion: 0.0.0-image
-annotations:
-  artifacthub.io/images: |
-    - name: cray-cfs-batcher
-      image: artifactory.algol60.net/csm-docker/S-T-A-B-L-E/cray-cfs-batcher:0.0.0-image
-  artifacthub.io/license: MIT
+# Check a PR for a modified changelog file, assuming CHANGELOG.md is the file.
+# Ignore PRs with the gitflow-maintenance and/or dependabot label(s).
+name: Changelog Checker
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+# Workflow Jobs
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    if: "!(
+      contains(github.event.pull_request.labels.*.name, 'gitflow-maintenance') ||
+      contains(github.event.pull_request.labels.*.name, 'dependabot')
+    )"
+    steps:
+      - name: Ensure changelog has changes
+        uses: Cray-HPE/.github/actions/csm-changelog-checker@v1-csm-changelog-checker
