@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Added an option to disable batcher
+- Added artifactory authentication in the Jenkinsfile
 
 ### Changed
 - Pending session timeout is now configurable using an option
