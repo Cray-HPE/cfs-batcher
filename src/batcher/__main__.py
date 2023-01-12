@@ -51,9 +51,27 @@ def monotonic_liveliness_heartbeat():
 
 def setup_logging():
     log_format = "%(asctime)-15s - %(levelname)-7s - %(name)s - %(message)s"
-    requested_log_level = os.environ.get('CFS_LOG_LEVEL', DEFAULT_LOG_LEVEL)
+    requested_log_level = os.environ.get('STARTING_CFS_LOG_LEVEL', DEFAULT_LOG_LEVEL)
     log_level = logging.getLevelName(requested_log_level)
     logging.basicConfig(level=log_level, format=log_format)
+
+
+def _update_log_level() -> None:
+    """ Updates the current logging level base on the value in the options database """
+    try:
+        if not options.logging_level:
+            return
+        new_level = logging.getLevelName(options.logging_level.upper())
+        current_level = LOGGER.getEffectiveLevel()
+        if current_level != new_level:
+            LOGGER.log(current_level, 'Changing logging level from {} to {}'.format(
+                logging.getLevelName(current_level), logging.getLevelName(new_level)))
+            logger = logging.getLogger()
+            logger.setLevel(new_level)
+            LOGGER.log(new_level, 'Logging level changed from {} to {}'.format(
+                logging.getLevelName(current_level), logging.getLevelName(new_level)))
+    except Exception as e:
+        LOGGER.error('Error updating logging level: {}'.format(e))
 
 
 def main():
@@ -66,9 +84,11 @@ def main():
         try:
             sleep(options.batcher_check_interval)
             options.update()
+            _update_log_level()
             manager.check_status()
-            manager.update_batches()
-            manager.send_batches()
+            if not options.disable:
+                manager.update_batches()
+                manager.send_batches()
         except Exception as e:
             LOGGER.error('Unexpected error occurred: {}'.format(e))
             sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.

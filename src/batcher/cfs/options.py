@@ -38,6 +38,9 @@ DEFAULTS = {
     'batchWindow': 60,
     'defaultBatcherRetryPolicy': 3,
     'batcherMaxBackoff': 60 * 60,  # 1 hour
+    'batcherDisable': False,
+    'batcherPendingTimeout': 300,
+    'loggingLevel': 'INFO'
 }
 
 
@@ -115,6 +118,18 @@ class Options():
     @property
     def max_backoff(self):
         return self.get_option('batcherMaxBackoff', int)
+
+    @property
+    def disable(self):
+        return self.get_option('batcherDisable', bool)
+
+    @property
+    def pending_timeout(self):
+        return self.get_option('batcherPendingTimeout', int)
+
+    @property
+    def logging_level(self):
+        return self.get_option('loggingLevel', str)
 
 
 options = Options()
