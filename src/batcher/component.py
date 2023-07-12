@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -32,32 +32,36 @@ LOGGER = logging.getLogger(__name__)
 class Component(object):
     """Holds the data, including state, for a single component"""
 
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, data, retain_desired_state=False):
         self.id = data['id']
-        self.error_count = data['errorCount']
+        self.error_count = data['error_count']
         self.tags = data.get('tags', {})
-        self.config_name = data['desiredConfig']
+        self.config_name = data['desired_config']
         # config_limit - The layers that still need to be configured
-        config_limit = []
-        desiredState = data.get('desiredState', [])
-        for i, layer in enumerate(desiredState):
-            if layer.get('status', '').lower() == 'pending':
-                config_limit.append(str(i))
-        if len(config_limit) == len(desiredState):
-            self.config_limit = ''
-        else:
-            self.config_limit = ','.join(config_limit)
-        # recent_status - Identifies if the most recent config attempt was failed/incomplete
-        #   This separates batches for components that failed, and components that were incomplete
-        self.recent_status = ''
-        state = self.data.get('state', [])
+        self.config_limit = ''.join([str(i) for i, layer in enumerate(data.get('desired_state', []))
+                                     if layer.get('status', '').lower() == 'pending'])
+        # latest_status/timestamp - Identifies if the most recent config attempt was failed/incomplete
+        #   and when the most recent state was recorded
+        self.latest_status = ''
+        self.latest_timestamp = ''
+        state = data.get('state', [])
         if len(state):
             recent_state = state[-1]
-            if '_' in recent_state['commit']:
-                self.recent_status = recent_state['commit'].split('_')[-1]
+            self.latest_status = recent_state['status']
+            self.latest_timestamp = recent_state['last_updated']
+        # desired_state_hash is to determine if the desired_state has changed without needing to store the whole
+        #   desired state data in memory.
+        self.desired_state_hash = hash(':'.join(
+            [f"{layer['commit']}{layer['playbook']}" for layer in data.get('desired_state', [])]))
+        # Only retain desired state when it's actually going to be used
+        # This should be reserved for iterating through components and not used for components stored in memory for an
+        #   extended period of time to reduce memory consumption
+        self.desired_state = []
+        if retain_desired_state:
+            self.desired_state = data.get('desired_state', [])
         # batch_key - Used to determine like components that can be configured together
-        self.batch_key = self.config_name + ':' + self.config_limit + ':' + self.recent_status
+        #   latest_status is used to separate batches for components that failed, and components that were incomplete
+        self.batch_key = self.config_name + ':' + self.config_limit + ':' + self.latest_status
 
     def __eq__(self, other):
         """Overrides the default implementation"""
@@ -73,35 +77,23 @@ class Component(object):
         return hash(self.id)
 
     def set_status(self, status, session_name=None, error_count=None, all_layers=True):
-        desiredState = self.data.get('desiredState', [])
-        for layer in desiredState:
+        for layer in self.desired_state:
             if layer.get('status', '').lower() == 'pending':
                 new_state = {
-                    'commit': layer.get('commit') + status,
+                    'commit': layer.get('commit'),
                     'playbook': layer.get('playbook', options.default_playbook),
-                    'cloneUrl': layer.get('cloneUrl'),
-                    'sessionName': session_name
+                    'clone_url': layer.get('clone_url'),
+                    'status': status,
+                    'session_name': session_name
                 }
-                patch = {'stateAppend': new_state}
+                patch = {'state_append': new_state}
                 if error_count is not None:
-                    patch['errorCount'] = error_count
+                    patch['error_count'] = error_count
                 components.patch_component(self.id, patch)
                 if not all_layers:
                     return
 
     def increment_error_count(self, session_name=None):
         error_count = self.error_count + 1
-        self.set_status('_failed', session_name=session_name, error_count=error_count,
+        self.set_status('failed', session_name=session_name, error_count=error_count,
                         all_layers=False)
-
-    def desired_config_changed(self, updated_component):
-        if self.config_name != updated_component.config_name:
-            return True
-        state1 = self.data.get('desiredState', [])
-        state2 = updated_component.data.get('desiredState', [])
-        if len(state1) != len(state2):
-            return True
-        for layer1, layer2 in zip(state1, state2):
-            if layer1['commit'] != layer2['commit'] or layer1['playbook'] != layer2['playbook']:
-                return True
-        return False

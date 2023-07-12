@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -22,7 +22,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 import logging
-import json
+import ujson as json
 from requests.exceptions import HTTPError, ConnectionError
 from urllib3.exceptions import MaxRetryError
 
@@ -33,14 +33,14 @@ LOGGER = logging.getLogger(__name__)
 ENDPOINT = "%s/%s" % (BASE_ENDPOINT, __name__.lower().split('.')[-1])
 
 DEFAULTS = {
-    'batcherCheckInterval': 10,
-    'batchSize': 25,
-    'batchWindow': 60,
-    'defaultBatcherRetryPolicy': 3,
-    'batcherMaxBackoff': 60 * 60,  # 1 hour
-    'batcherDisable': False,
-    'batcherPendingTimeout': 300,
-    'loggingLevel': 'INFO'
+    'batcher_check_interval': 10,
+    'batch_size': 25,
+    'batch_window': 60,
+    'default_batcher_retry_policy': 3,
+    'batcher_max_backoff': 60 * 60,  # 1 hour
+    'batcher_disable': False,
+    'batcher_pending_timeout': 300,
+    'logging_level': 'INFO'
 }
 
 
@@ -97,39 +97,39 @@ class Options():
 
     @property
     def batcher_check_interval(self):
-        return self.get_option('batcherCheckInterval', int)
+        return self.get_option('batcher_check_interval', int)
 
     @property
     def batch_size(self):
-        return self.get_option('batchSize', int)
+        return self.get_option('batch_size', int)
 
     @property
     def batch_window(self):
-        return self.get_option('batchWindow', int)
+        return self.get_option('batch_window', int)
 
     @property
     def default_batcher_retry_policy(self):
-        return self.get_option('defaultBatcherRetryPolicy', int)
+        return self.get_option('default_batcher_retry_policy', int)
 
     @property
     def default_playbook(self):
-        return self.get_option('defaultPlaybook', str)
+        return self.get_option('default_playbook', str)
 
     @property
     def max_backoff(self):
-        return self.get_option('batcherMaxBackoff', int)
+        return self.get_option('batcher_max_backoff', int)
 
     @property
     def disable(self):
-        return self.get_option('batcherDisable', bool)
+        return self.get_option('batcher_disable', bool)
 
     @property
     def pending_timeout(self):
-        return self.get_option('batcherPendingTimeout', int)
+        return self.get_option('batcher_pending_timeout', int)
 
     @property
     def logging_level(self):
-        return self.get_option('loggingLevel', str)
+        return self.get_option('logging_level', str)
 
 
 options = Options()
