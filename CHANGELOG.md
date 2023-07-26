@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Removed
 - Removed defunct files leftover from previous versioning system
+### Dependencies
+Bumped dependency patch versions:
+| Package                  | From     | To       |
+|--------------------------|----------|----------|
+| `kubernetes`             | 9.0.0    | 9.0.1    |
+| `rsa`                    | 4.7      | 4.7.2    |
+| `urllib3`                | 1.25.9   | 1.25.11  |
 
 ## [1.8.0] - 1/12/2023
 ### Added
