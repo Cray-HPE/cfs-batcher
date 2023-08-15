@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Removed
-- Removed defunct files leftover from previous versioning system
+## [Unreleased]
+### Changed
+- Disabled concurrent Jenkins builds on same branch/commit
+- Added build timeout to avoid hung builds
+
 ### Dependencies
 Bumped dependency patch versions:
 | Package                  | From     | To       |
@@ -14,6 +16,9 @@ Bumped dependency patch versions:
 | `kubernetes`             | 9.0.0    | 9.0.1    |
 | `rsa`                    | 4.7      | 4.7.2    |
 | `urllib3`                | 1.25.9   | 1.25.11  |
+
+### Removed
+- Removed defunct files leftover from previous versioning system
 
 ## [1.8.0] - 1/12/2023
 ### Added
