@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Disabled concurrent Jenkins builds on same branch/commit
+- Added build timeout to avoid hung builds
+
 ### Removed
 - Removed defunct files leftover from previous versioning system
+- Removed spec file for RPM no longer being built
+
 ### Dependencies
 Bumped dependency patch versions:
 | Package                  | From     | To       |
