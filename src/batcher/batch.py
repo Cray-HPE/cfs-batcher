@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -67,7 +67,7 @@ class BatchManager(object):
         self.recent_sessions = deque([True] * RECENT_SESSIONS_SIZE, RECENT_SESSIONS_SIZE)
         self.current_backoff = 0
         self.backoff_start = 0
-        # If there are batcher is restarted, state will need to be rebuilt.
+        # If the batcher is restarted, state will need to be rebuilt.
         self._rebuild_state()
 
     def check_status(self):
@@ -367,6 +367,10 @@ class Batch(object):
                 'Session status for {} is status:{} completed:{}'.format(
                     self.session_name, status, succeeded))
             if succeeded == 'false':
+                return 'failed'
+            if succeeded == 'unknown':
+                # For batcher purposes, sessions that have completed with unknown success should be treated as failures
+                #   so that the layers are retried rather than be marked as skipped intentionally
                 return 'failed'
             return status.lower()
         else:
