@@ -24,6 +24,9 @@ Bumped dependency patch versions:
 ### Changed
 - Updated to the v3 CFS api for paging and memory improvements
 
+### Fixed
+- Fixed handling of unknown session success
+
 ## [1.8.0] - 1/12/2023
 ### Added
 - Added an option to disable batcher

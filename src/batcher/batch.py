@@ -362,6 +362,10 @@ class Batch(object):
                     self.session_name, status, succeeded))
             if succeeded == 'false':
                 return 'failed'
+            if succeeded == 'unknown':
+                # For batcher purposes, sessions that have completed with unknown success should be treated as failures
+                #   so that the layers are retried rather than be marked as skipped intentionally
+                return 'failed'
             return status.lower()
         else:
             return 'new'
