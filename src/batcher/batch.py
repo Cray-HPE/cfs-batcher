@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -22,6 +22,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 from collections import defaultdict, deque
+from functools import partial
 import logging
 from requests.exceptions import HTTPError
 import time
@@ -67,7 +68,7 @@ class BatchManager(object):
         self.recent_sessions = deque([True] * RECENT_SESSIONS_SIZE, RECENT_SESSIONS_SIZE)
         self.current_backoff = 0
         self.backoff_start = 0
-        # If there are batcher is restarted, state will need to be rebuilt.
+        # If the batcher is restarted, state will need to be rebuilt.
         self._rebuild_state()
 
     def check_status(self):
@@ -102,8 +103,7 @@ class BatchManager(object):
     def update_batches(self):
         LOGGER.debug('Checking components for new configuration states')
         i = 0
-        data = components.get_components(enabled=True, status='pending')
-        for component_data in data:
+        for component_data in components.iter_components(enabled=True, status='pending'):
             component = Component(component_data)
             self.add(component)
             i += 1
@@ -167,16 +167,16 @@ class BatchManager(object):
         return False
 
     def _rebuild_state(self):
-        sessions_data = sessions.get_sessions()
+        sessions_data = sessions.get_sessions(parameters={"limit":1})
         while sessions_data is None:
             LOGGER.info('Waiting for CFS to become available')
-            sessions_data = sessions.get_sessions()
+            sessions_data = sessions.get_sessions(parameters={"limit":1})
             time.sleep(1)
         n = 0
-        for session in sessions_data:
+        for session in sessions.iter_sessions():
             status = session.get('status', {}).get('session', {}).get('status', '')
             if 'batcher' in session.get('name', '') and status != 'complete':
-                batch = Batch._rebuild_from_session(session)
+                batch = Batch.rebuild_from_session(session)
                 if batch.components:
                     batch_key = next(iter(batch.components)).batch_key
                     self.batches[batch_key].append(batch)
@@ -190,21 +190,17 @@ class Batch(object):
 
     def __init__(self, component):
         self.components = set()
-        if not component:
-            return
-
         self.components.add(component)
-
         self.config_name = component.config_name
         self.config_limit = component.config_limit
-
         self.session_name = ''
         self.batch_start = None  # Starts when the session is sent/loaded
         self.batch_window_start = time.time()
 
     @classmethod
-    def _rebuild_from_session(cls, session):
-        batch = Batch(None)
+    def rebuild_from_session(cls, session):
+        batch = object.__new__(cls)
+        batch.components = set()
         batch.session_name = session.get('name', '')
         batch.batch_start = time.time()
         config_data = session['configuration']
@@ -214,8 +210,11 @@ class Batch(object):
         component_ids = ansible_data.get('limit').split(',')
         for component_id in component_ids:
             batch.components.add(Component(components.get_component(component_id)))
-
         return batch
+
+    @property
+    def component_ids(self):
+        return [component.id for component in self.components]
 
     def try_add(self, component):
         """Add a component if possible"""
@@ -229,12 +228,11 @@ class Batch(object):
     def try_send(self):
         """Create a config session for the batch if needed and possible"""
         if not self.session_name and (self.full or self.overdue):
-            component_ids = [component.id for component in self.components]
             tags = self._get_tags()
             success, session_name = sessions.create_session(
                 config=self.config_name,
                 config_limit=self.config_limit,
-                components=component_ids,
+                components=self.component_ids,
                 tags=tags)
             if success:
                 self.session_name = session_name
@@ -266,47 +264,41 @@ class Batch(object):
             complete = False
         return complete, success
 
-    def _handle_incomplete_components(self, session_status):
+    def _handle_incomplete_components(self, session_status: str) -> None:
         """
         This handles two cases where Ansible doesn't update component status.
         1) Ansible was successful but doesn't target the component in question.
         2) Ansible or the pod encounter a failure before tasks can run, such as in inventory.
         """
-        incomplete_components = []
-        if session_status == 'complete':
-            incomplete_components = components.get_components(
-                status='pending', ids=','.join([c.id for c in self.components]))
-            if not incomplete_components:
-                return
-        elif session_status == 'failed':
-            # All components are needed to determine failed layers
-            updated_components = components.get_components(
-                ids=','.join([c.id for c in self.components]))
-            incomplete_components = [component for component in updated_components
-                                     if component['configurationStatus'] == 'pending']
-            self.ansible_failure = self._check_ansible_failure(updated_components)
-        component_starting_states_map = {c.id: c for c in self.components}
-        for component_data in incomplete_components:
-            current_component = Component(component_data)
-            starting_component = component_starting_states_map[current_component.id]
+        if session_status == 'failed':
+            self.ansible_failure = self._check_ansible_failure()
+        elif session_status != 'complete':
+            return
+        starting_components_map = {c.id: c for c in self.components}
+        for current_component_data in components.iter_components(ids=','.join(self.component_ids), status='pending'):
+            # Desired state may be needed to record skipped layers
+            current_component = Component(current_component_data, retain_desired_state=True)
+            starting_component = starting_components_map[current_component.id]
             self._check_component_complete(starting_component, current_component, session_status)
 
-    def _check_ansible_failure(self, updated_components):
-        component_starting_states_map = {c.id: c for c in self.components}
-        for component_data in updated_components:
-            current_component = Component(component_data)
-            starting_component = component_starting_states_map[current_component.id]
-            starting_state = starting_component.data.get('state', [])
-            current_state = current_component.data.get('state', [])
-            if current_state and '_failed' in current_state[-1]['commit'] and \
-                    (not starting_state or
-                     current_state[-1]['lastUpdated'] != starting_state[-1]['lastUpdated']):
+    def _check_ansible_failure(self) -> bool:
+        """
+        Checks if was the cause of the failure.
+        In this case at least one component will new have a newly recorded "failed" status
+        """
+        starting_components_map = {c.id: c for c in self.components}
+        for current_component_data in components.iter_components(ids=','.join(self.component_ids)):
+            current_component = Component(current_component_data)
+            starting_component = starting_components_map[current_component.id]
+            if current_component.latest_status == 'failed' and \
+                    (not starting_component.latest_timestamp or
+                     current_component.latest_timestamp != starting_component.latest_timestamp):
                 return True
         return False
 
     def _check_component_complete(self, component, current_component, session_status):
         LOGGER.debug('Checking incomplete component {}'.format(component.id))
-        if component.desired_config_changed(current_component):
+        if component.desired_state_hash != current_component.desired_state_hash:
             # The component is in a new pending state because the desired config changed
             # Let CFS rerun and sort this case out
             LOGGER.debug('Desired config changed for component {}'.format(component.id))
@@ -319,7 +311,7 @@ class Batch(object):
             #   (and successful), we know all skipped layers were intentional on Ansible's part.
             LOGGER.debug('Updating component {} for skipped layers (session success)'.format(
                 component.id))
-            current_component.set_status('_skipped', session_name=self.session_name)
+            current_component.set_status('skipped', session_name=self.session_name)
             return
 
         if session_status == 'failed':
@@ -333,7 +325,7 @@ class Batch(object):
                 return
             # else:
             #   It is possible in this case that some layers were skipped before a failure.
-            #   However Ansible failures are a common case, and it is tricky to determine what
+            #   However Ansible failures are a common case, and it is tricky to determine
             #       which layer the failure occurred on and which components and layers should
             #       be marked skipped.
             #   Because there is no harm in rerunning a playbook that doesn't impact a component,
@@ -363,10 +355,16 @@ class Batch(object):
             except HTTPError as e:
                 if e.response.status_code == 404:
                     return 'deleted'
+                else:
+                    return 'unknown'
             LOGGER.debug(
                 'Session status for {} is status:{} completed:{}'.format(
                     self.session_name, status, succeeded))
             if succeeded == 'false':
+                return 'failed'
+            if succeeded == 'unknown':
+                # For batcher purposes, sessions that have completed with unknown success should be treated as failures
+                #   so that the layers are retried rather than be marked as skipped intentionally
                 return 'failed'
             return status.lower()
         else:

@@ -3,3 +3,4 @@
 kubernetes
 requests
 wget
+ujson
