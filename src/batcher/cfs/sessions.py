@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-import json
+import ujson as json
 import logging
 from requests.exceptions import HTTPError, ConnectionError
 from urllib3.exceptions import MaxRetryError
@@ -55,11 +55,25 @@ def get_session(name):
     return {}
 
 
-def get_sessions():
+def iter_sessions():
+    """Get information for all CFS sessions"""
+    next_parameters = None
+    while True:
+        data = get_sessions(parameters=next_parameters)
+        for session in data["sessions"]:
+            yield session
+        next_parameters = data["next"]
+        if not next_parameters:
+            break
+
+
+def get_sessions(parameters=None):
     """Get a configuration (CFS) session"""
     session = requests_retry_session()
     try:
-        response = session.get(ENDPOINT)
+        if not parameters:
+            parameters = {}
+        response = session.get(ENDPOINT, params=parameters)
         response.raise_for_status()
         return json.loads(response.text)
     except (ConnectionError, MaxRetryError) as e:
@@ -77,9 +91,9 @@ def create_session(config, config_limit='', components=[], tags=None):
     name = 'batcher-' + str(uuid.uuid4())
     ansible_limit = ','.join(components)
     data = {'name': name,
-            'configurationName': config,
-            'configurationLimit': config_limit,
-            'ansibleLimit': ansible_limit,
+            'configuration_name': config,
+            'configuration_limit': config_limit,
+            'ansible_limit': ansible_limit,
             'target': {'definition': 'dynamic'}}
     if tags:
         data['tags'] = tags

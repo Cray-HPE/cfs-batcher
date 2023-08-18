@@ -21,6 +21,12 @@ Bumped dependency patch versions:
 | `rsa`                    | 4.7      | 4.7.2    |
 | `urllib3`                | 1.25.9   | 1.25.11  |
 
+### Changed
+- Updated to the v3 CFS api for paging and memory improvements
+
+### Fixed
+- Fixed handling of unknown session success
+
 ## [1.8.0] - 1/12/2023
 ### Added
 - Added an option to disable batcher
