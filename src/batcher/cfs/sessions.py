@@ -25,6 +25,7 @@ import ujson as json
 import logging
 from requests.exceptions import HTTPError, ConnectionError
 from urllib3.exceptions import MaxRetryError
+from time import sleep
 import uuid
 
 from batcher.client import requests_retry_session
@@ -60,6 +61,10 @@ def iter_sessions():
     next_parameters = None
     while True:
         data = get_sessions(parameters=next_parameters)
+        if not data:
+            LOGGER.warning("Could not retrieve any session data. Retrying.")
+            sleep(1)
+            continue
         for session in data["sessions"]:
             yield session
         next_parameters = data["next"]
