@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add code to heartbeat thread that causes it to bail if the main thread is no longer alive.
 
+### Fixed
+- Perform a retry when CFS fails to retrieve session data.
+
 ### Dependencies
 - Use `requests_retry_session` module instead of duplicating the code.
 
