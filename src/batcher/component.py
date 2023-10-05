@@ -37,8 +37,8 @@ class Component(object):
         self.error_count = data['error_count']
         self.tags = data.get('tags', {})
         self.config_name = data['desired_config']
-        # config_limit - The layers that still need to be configured
-        self.config_limit = ''.join([str(i) for i, layer in enumerate(data.get('desired_state', []))
+        # config_limit - Comma-delimited string listing the layers that still need to be configured
+        self.config_limit = ','.join([str(i) for i, layer in enumerate(data.get('desired_state', []))
                                      if layer.get('status', '').lower() == 'pending'])
         # latest_status/timestamp - Identifies if the most recent config attempt was failed/incomplete
         #   and when the most recent state was recorded
