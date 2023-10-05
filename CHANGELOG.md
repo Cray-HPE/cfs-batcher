@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.9.1] - 10/05/2023
+### Fixed
+- When specifying a configuration limit field for a session, use commas to delimit the
+  layers (as per the API spec)
+
 ## [1.9.0] - 8/18/2023
 ### Changed
 - Disabled concurrent Jenkins builds on same branch/commit
