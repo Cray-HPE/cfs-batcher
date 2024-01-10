@@ -68,7 +68,12 @@ class BatchManager(object):
         self.current_backoff = 0
         self.backoff_start = 0
         # If the batcher is restarted, state will need to be rebuilt.
-        self._rebuild_state()
+        while True:
+            try:
+                self._rebuild_state()
+                break
+            except:
+                LOGGER.warning("Rebuilding state was interrupted. Trying again...")
 
     def check_status(self):
         """Remove batches for which the sessions have been completed"""

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Improved error handling during the rebuild state phase of startup
+
 ### Changed
 - Disabled concurrent Jenkins builds on same branch/commit
 - Added build timeout to avoid hung builds

@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -64,10 +64,13 @@ def get_sessions():
         return json.loads(response.text)
     except (ConnectionError, MaxRetryError) as e:
         LOGGER.error("Unable to connect to CFS: {}".format(e))
+        raise e
     except HTTPError as e:
         LOGGER.error("Unexpected response from CFS: {}".format(e))
+        raise e
     except json.JSONDecodeError as e:
         LOGGER.error("Non-JSON response from CFS: {}".format(e))
+        raise e
     return None
 
 
