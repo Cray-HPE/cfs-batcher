@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2024 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -69,7 +69,12 @@ class BatchManager(object):
         self.current_backoff = 0
         self.backoff_start = 0
         # If the batcher is restarted, state will need to be rebuilt.
-        self._rebuild_state()
+        while True:
+            try:
+                self._rebuild_state()
+                break
+            except:
+                LOGGER.warning("Rebuilding state was interrupted. Trying again...")
 
     def check_status(self):
         """Remove batches for which the sessions have been completed"""

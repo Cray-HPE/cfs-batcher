@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.9.2] - 01/10/2024
+### Fixed
+- Improved error handling during the rebuild state phase of startup
+
 ## [1.9.1] - 10/05/2023
 ### Fixed
 - When specifying a configuration limit field for a session, use commas to delimit the
