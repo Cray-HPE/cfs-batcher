@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Dependencies
+- Bump `kubernetes` from 9.0.1 to 22.6.0 to match CSM 1.6 Kubernetes version
+
 ## [1.9.2] - 01/10/2024
 ### Fixed
 - Improved error handling during the rebuild state phase of startup
