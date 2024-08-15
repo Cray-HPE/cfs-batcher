@@ -1,6 +1,7 @@
 kubernetes==9.0.1
 requests==2.22.0
-wget==3.2
+requests_retry_session>=0.1,<0.2
 rsa==4.7.2
 ujson==5.8.0
 urllib3==1.25.11
+wget==3.2
