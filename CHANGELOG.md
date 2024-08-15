@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+- Use `requests_retry_session` module instead of duplicating the code.
+
 ## [1.10.0] - 02/22/2024
 ### Dependencies
 - Bump `kubernetes` from 9.0.1 to 22.6.0 to match CSM 1.6 Kubernetes version
