@@ -5,30 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.8.1] - 8/16/2024
 ### Added
 - Add code to heartbeat thread that causes it to bail if the main thread is no longer alive.
-
-### Dependencies
-- Use `requests_retry_session` module instead of duplicating the code.
-
-### Fixed
-- Improved error handling during the rebuild state phase of startup
 
 ### Changed
 - Disabled concurrent Jenkins builds on same branch/commit
 - Added build timeout to avoid hung builds
+
+### Fixed
+- Improved error handling during the rebuild state phase of startup
 
 ### Removed
 - Removed defunct files leftover from previous versioning system
 - Removed spec file for RPM no longer being built
 
 ### Dependencies
-Bumped dependency patch versions:
-| Package                  | From     | To       |
-|--------------------------|----------|----------|
-| `kubernetes`             | 9.0.0    | 9.0.1    |
-| `rsa`                    | 4.7      | 4.7.2    |
-| `urllib3`                | 1.25.9   | 1.25.11  |
+- Use `requests_retry_session` module instead of duplicating the code.
+- Bumped dependency patch versions:
+
+   | Package                  | From     | To       |
+   |--------------------------|----------|----------|
+   | `kubernetes`             | 9.0.0    | 9.0.1    |
+   | `rsa`                    | 4.7      | 4.7.2    |
+   | `urllib3`                | 1.25.9   | 1.25.11  |
 
 ### Fixed
 - Fixed handling of unknown session success
