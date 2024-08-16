@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -35,6 +35,7 @@ from .cfs.options import options
 
 DEFAULT_LOG_LEVEL = logging.INFO
 LOGGER = logging.getLogger(__name__)
+MAIN_THREAD = threading.current_thread()
 
 
 def monotonic_liveliness_heartbeat():
@@ -45,6 +46,9 @@ def monotonic_liveliness_heartbeat():
     period of time.
     """
     while True:
+        if not MAIN_THREAD.is_alive():
+            # All hope abandon ye who enter here
+            return
         Timestamp()
         sleep(10)
 

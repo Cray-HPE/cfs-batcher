@@ -1,6 +1,7 @@
 # CSM 1.6 uses Kubernetes 1.22, so use client v22.x to ensure compatability
 kubernetes==22.6.0
 requests==2.22.0
+requests_retry_session>=0.1,<0.2
 rsa==4.7.2
 ujson==5.8.0
 urllib3==1.25.11
