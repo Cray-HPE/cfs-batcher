@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+- CSM 1.6 moved to Kubernetes 1.24, so use client v24.x to ensure compatability
+
 ## [1.11.0] - 08/16/2024
 ### Added
 - Add code to heartbeat thread that causes it to bail if the main thread is no longer alive.
