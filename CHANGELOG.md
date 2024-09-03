@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 09/03/2024
 ### Dependencies
 - CSM 1.6 moved to Kubernetes 1.24, so use client v24.x to ensure compatibility
 - CASMPET-7065 - update to cray-services:11.0.0 base chart
