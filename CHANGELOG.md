@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 02/13/2025
+### Dependencies
+- CASMCMS-9282: Bump Alpine version from 3.15 to 3.18, because 3.15 no longer receives security patches
+
 ## [1.12.0] - 09/03/2024
 ### Dependencies
 - CSM 1.6 moved to Kubernetes 1.24, so use client v24.x to ensure compatibility
