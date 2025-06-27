@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+- Update `requests_retry_session` and `kubernetes`
+
 ## [1.13.0] - 02/13/2025
 ### Dependencies
 - CASMCMS-9282
