@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2022, 2024, 2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -94,7 +94,7 @@ def main():
                 manager.update_batches()
                 manager.send_batches()
         except Exception as e:
-            LOGGER.error('Unexpected error occurred: {}'.format(e))
+            LOGGER.error('Unexpected %s error occurred: %s', type(e).__name__, e)
             sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.
 
 
