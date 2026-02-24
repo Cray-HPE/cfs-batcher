@@ -94,6 +94,7 @@ def main():
                 manager.update_batches()
                 manager.send_batches()
         except Exception as e:
+            LOGGER.exception('Unexpected error occurred')
             LOGGER.error('Unexpected %s error occurred: %s', type(e).__name__, e)
             sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.
 
