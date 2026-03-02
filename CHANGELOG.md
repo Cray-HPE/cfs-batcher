@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- CASMCMS-9631: Include stack trace when logging exceptions in main execution loop
+
+### Dependencies
+- CASMCMS-9631: Bump `urllib3` from `1.26` to `2.6.3` to resolve CVEs:
+  - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-14192442
+  - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-14192443
+  - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-14896210
+
 ## [1.13.1] - 07/02/2025
 ### Dependencies
 - Update `requests_retry_session` and `kubernetes`
