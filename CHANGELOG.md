@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - CASMCMS-9631: Include stack trace when logging exceptions in main execution loop
 
+### Fixed
+- CASMCMS-9631: Fixed inconsistent FROM...AS casing in Dockerfile to prevent warnings at build time
+
 ### Dependencies
 - CASMCMS-9631: Bump `urllib3` from `1.26` to `2.6.3` to resolve CVEs:
   - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-14192442
