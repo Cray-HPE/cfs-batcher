@@ -9,5 +9,5 @@ requests-retry-session>=4.0,<4.1    ; python_version >= '3.12' and python_versio
 requests-retry-session>=5.0,<5.1    ; python_version >= '3.13'
 rsa>=4.7.2,<4.8
 ujson==5.8.0
-urllib3>=1.26,<1.27
+urllib3>=2.6.3,<2.7
 wget==3.2
