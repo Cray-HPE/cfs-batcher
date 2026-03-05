@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CAST-39551: Added additional debug logging.
 
+### Changed
+- Include process and thread IDs in log messages
+
 ### Dependencies
 - Added csm-utils package to dependencies.
 
