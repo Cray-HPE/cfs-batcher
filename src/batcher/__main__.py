@@ -54,7 +54,7 @@ def monotonic_liveliness_heartbeat():
 
 
 def setup_logging():
-    log_format = "%(asctime)-15s - %(levelname)-7s - %(name)s - %(message)s"
+    log_format = "%(asctime)-15s - %(process)d - %(thread)d - %(levelname)-7s - %(name)s - %(message)s"
     requested_log_level = os.environ.get('STARTING_CFS_LOG_LEVEL', DEFAULT_LOG_LEVEL)
     log_level = logging.getLevelName(requested_log_level)
     logging.basicConfig(level=log_level, format=log_format)
