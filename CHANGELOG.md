@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - CASMCMS-9631: Include stack trace when logging exceptions in main execution loop
+- Include process and thread IDs in log messages
 
 ### Fixed
 - CASMCMS-9631: Fixed inconsistent FROM...AS casing in Dockerfile to prevent warnings at build time
