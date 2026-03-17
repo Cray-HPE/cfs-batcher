@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 03/17/2026
 ### Changed
 - CASMCMS-9631: Include stack trace when logging exceptions in main execution loop
 - Include process and thread IDs in log messages
