@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2021-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2021-2022, 2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -48,7 +48,7 @@ DEFAULT_LOG_LEVEL = logging.INFO
 
 
 def setup_logging():
-    log_format = "%(asctime)-15s - %(levelname)-7s - %(name)s - %(message)s"
+    log_format = "%(asctime)-15s - %(process)d - %(thread)d - %(levelname)-7s - %(name)s - %(message)s"
     requested_log_level = os.environ.get('CFS_LOG_LEVEL', DEFAULT_LOG_LEVEL)
     log_level = logging.getLevelName(requested_log_level)
     logging.basicConfig(level=log_level, format=log_format)
