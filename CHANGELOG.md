@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+- Added csm-utils package to dependencies.
+
 ## [1.14.1] - 04/09/2026
 ### Dependencies
 - CASMCMS-9641: Updated `ujson` from `5.8` to `5.12` to resolve CVEs:
