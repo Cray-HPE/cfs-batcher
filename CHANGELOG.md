@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.1] - 05/18/2026
+### Added
+- CAST-39551: Added additional debug logging.
+
+### Changed
+- Include process and thread IDs in log messages
+
+### Dependencies
+- Added csm-utils package to dependencies.
+
 ## [1.12.0] - 09/03/2024
 ### Dependencies
 - CSM 1.6 moved to Kubernetes 1.24, so use client v24.x to ensure compatibility

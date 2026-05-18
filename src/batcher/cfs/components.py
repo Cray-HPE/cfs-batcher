@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2023 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -23,6 +23,8 @@
 #
 import ujson as json
 import logging
+
+from csm_utils.logging import exc_type_msg
 from requests.exceptions import HTTPError, ConnectionError
 from urllib3.exceptions import MaxRetryError
 
@@ -60,11 +62,11 @@ def get_components(parameters=None):
         LOGGER.debug('Received data for {} components'.format(len(components_data["components"])))
         return components_data
     except (ConnectionError, MaxRetryError) as e:
-        LOGGER.error("Unable to connect to CFS: {}".format(e))
+        LOGGER.error("Unable to connect to CFS: %s", exc_type_msg(e))
     except HTTPError as e:
-        LOGGER.error("Unexpected response from CFS: {}".format(e))
+        LOGGER.error("Unexpected response from CFS: %s", exc_type_msg(e))
     except json.JSONDecodeError as e:
-        LOGGER.error("Non-JSON response from CFS: {}".format(e))
+        LOGGER.error("Non-JSON response from CFS: %s", exc_type_msg(e))
     return None
 
 
@@ -80,11 +82,11 @@ def get_component(id, **kwargs):
         response.raise_for_status()
         component = json.loads(response.text)
     except (ConnectionError, MaxRetryError) as e:
-        LOGGER.error("Unable to connect to CFS: {}".format(e))
+        LOGGER.error("Unable to connect to CFS: %s", exc_type_msg(e))
     except HTTPError as e:
-        LOGGER.error("Unexpected response from CFS: {}".format(e))
+        LOGGER.error("Unexpected response from CFS: %s", exc_type_msg(e))
     except json.JSONDecodeError as e:
-        LOGGER.error("Non-JSON response from CFS: {}".format(e))
+        LOGGER.error("Non-JSON response from CFS: %s", exc_type_msg(e))
     return component
 
 
@@ -98,7 +100,7 @@ def patch_component(id, patch):
         response.raise_for_status()
         success = True
     except (ConnectionError, MaxRetryError) as e:
-        LOGGER.error("Unable to connect to CFS: {}".format(e))
+        LOGGER.error("Unable to connect to CFS: %s", exc_type_msg(e))
     except HTTPError as e:
-        LOGGER.error("Unexpected response from CFS: {}".format(e))
+        LOGGER.error("Unexpected response from CFS: %s", exc_type_msg(e))
     return success
