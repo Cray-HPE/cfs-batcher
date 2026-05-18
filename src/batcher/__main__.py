@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -26,6 +26,8 @@ import logging
 import os
 import threading
 from time import sleep
+
+from csm_utils.logging import exc_type_msg
 
 from .batch import BatchManager
 from .liveness.timestamp import Timestamp
@@ -75,7 +77,7 @@ def _update_log_level() -> None:
             LOGGER.log(new_level, 'Logging level changed from {} to {}'.format(
                 logging.getLevelName(current_level), logging.getLevelName(new_level)))
     except Exception as e:
-        LOGGER.error('Error updating logging level: {}'.format(e))
+        LOGGER.error('Error updating logging level: %s', exc_type_msg(e))
 
 
 def main():
@@ -94,7 +96,7 @@ def main():
                 manager.update_batches()
                 manager.send_batches()
         except Exception as e:
-            LOGGER.error('Unexpected error occurred: {}'.format(e))
+            LOGGER.error('Unexpected error occurred: %s', exc_type_msg(e))
             sleep(5)  # Arbitrary sleep to prevent recurring errors from hammering other services.
 
 
