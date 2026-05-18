@@ -92,8 +92,8 @@ class Options():
         except HTTPError as e:
             LOGGER.error("Unexpected response from CFS: {}".format(e))
 
-    def get_option(self, key, type):
-        return type(self.options[key])
+    def get_option(self, key, typee):
+        return typee(self.options[key])
 
     @property
     def batcher_check_interval(self):
@@ -133,3 +133,4 @@ class Options():
 
 
 options = Options()
+new_level = options.logging_level.upper()
