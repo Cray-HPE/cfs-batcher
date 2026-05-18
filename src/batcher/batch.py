@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2024 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -24,8 +24,10 @@
 from collections import defaultdict, deque
 from functools import partial
 import logging
-from requests.exceptions import HTTPError
 import time
+
+from csm_utils.logging import exc_type_msg
+from requests.exceptions import HTTPError
 
 from .cfs.options import options
 from .cfs import sessions
@@ -73,7 +75,8 @@ class BatchManager(object):
             try:
                 self._rebuild_state()
                 break
-            except:
+            except Exception as e:
+                LOGGER.debug(exc_type_msg(e))
                 LOGGER.warning("Rebuilding state was interrupted. Trying again...")
 
     def check_status(self):
@@ -265,7 +268,7 @@ class Batch(object):
                 sessions.delete_session(self.session_name)
                 complete = True
         except Exception as e:
-            LOGGER.warning('Unexpected exception checking session status: {}'.format(e))
+            LOGGER.warning('Unexpected exception checking session status: %s', exc_type_msg(e))
             complete = False
         return complete, success
 
