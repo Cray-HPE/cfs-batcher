@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `urllib3` from `2.6.3` to `2.7` to resolve CVEs:
   - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-16642024
   - https://snyk.io/vuln/SNYK-PYTHON-URLLIB3-16642059
+- Use latest `requests_retry_session`
 
 ## [1.14.2] - 05/20/2026
 
