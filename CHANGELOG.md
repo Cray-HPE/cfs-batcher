@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increase read timeout used for requests to avoid unnecessary timeouts
 - Do not send empty options patches
 
+### Dependencies
+- Use latest `requests_retry_session`
+
 ## [1.12.1] - 05/18/2026
 ### Added
 - CAST-39551: Added additional debug logging.
