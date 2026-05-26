@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Record all installed Python packages during Docker image build
+
 ### Changed
 - When first trying to create a session for a batch, if it fails:
   - Remember the session name and re-use it for the next create attempt

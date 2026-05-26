@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2019-2022, 2024 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2019-2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -29,8 +29,12 @@ RUN apk add --upgrade --no-cache apk-tools &&  \
 	apk update && \
 	apk add --no-cache gcc g++ python3-dev py3-pip musl-dev libffi-dev openssl-dev && \
 	apk -U upgrade --no-cache && \
-    pip3 install --no-cache-dir -U pip
-RUN --mount=type=secret,id=netrc,target=/root/.netrc pip3 install --no-cache-dir -r requirements.txt
+    pip3 list --format freeze && \
+    pip3 install --no-cache-dir -U pip && \
+    pip3 list --format freeze
+RUN --mount=type=secret,id=netrc,target=/root/.netrc \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 list --format freeze
 COPY src/batcher/ lib/batcher/
 
 # Testing Image
