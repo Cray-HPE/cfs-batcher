@@ -66,7 +66,8 @@ class Options():
                 if key not in options:
                     LOGGER.info("Setting option {} to {}.".format(key, str(value)))
                     patch[key] = value
-            self._patch_options(patch)
+            if patch:
+                self._patch_options(patch)
 
     def _read_options(self):
         """Retrieves the current options from the CFS api"""
