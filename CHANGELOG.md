@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remember the session name and re-use it for the next create attempt
   - Prevent additions to the batch
 - If session creation fails because the session already exists, treat it as a success
+- Use `time.monotonic()` instead of `time.time()`, to avoid clock change edge cases
 
 ## [1.12.1] - 05/18/2026
 ### Added

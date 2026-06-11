@@ -160,7 +160,7 @@ class BatchManager(object):
                 LOGGER.info('A session has succeeded.  Resuming normal operations')
             return
 
-        if time.time() - self.backoff_start >= self.current_backoff:  # The previous backoff expired
+        if time.monotonic() - self.backoff_start >= self.current_backoff:  # The previous backoff expired
             if self.current_backoff == 0:
                 self.current_backoff = min(options.max_backoff, STARTING_BACKOFF)
             else:
@@ -168,10 +168,10 @@ class BatchManager(object):
             LOGGER.warning('The {} most recent configuration sessions have failed. Halting session '
                            'creation for {} seconds'.format(RECENT_SESSIONS_SIZE,
                                                             self.current_backoff))
-            self.backoff_start = time.time()
+            self.backoff_start = time.monotonic()
 
     def backoff(self):
-        if time.time() - self.backoff_start < self.current_backoff:
+        if time.monotonic() - self.backoff_start < self.current_backoff:
             return True
         return False
 
@@ -205,14 +205,14 @@ class Batch(object):
         self.session_name = ''
         self._session_name = None
         self.batch_start = None  # Starts when the session is sent/loaded
-        self.batch_window_start = time.time()
+        self.batch_window_start = time.monotonic()
 
     @classmethod
     def rebuild_from_session(cls, session):
         batch = object.__new__(cls)
         batch.components = set()
         batch.session_name = session.get('name', '')
-        batch.batch_start = time.time()
+        batch.batch_start = time.monotonic()
         config_data = session['configuration']
         batch.config_name = config_data.get('name')
         batch.config_limit = config_data.get('limit')
@@ -257,7 +257,7 @@ class Batch(object):
 
         # Session create succeeded
         self.session_name = self._session_name
-        self.batch_start = time.time()
+        self.batch_start = time.monotonic()
         return True
 
     def check_complete(self):
@@ -274,7 +274,7 @@ class Batch(object):
             elif status == 'deleted':
                 LOGGER.info('Session {} no longer exists'.format(self.session_name))
                 complete = True
-            elif status == 'pending' and (time.time() - self.batch_start > options.pending_timeout):
+            elif status == 'pending' and (time.monotonic() - self.batch_start > options.pending_timeout):
                 LOGGER.warning('Session {} is stuck in pending and will be deleted.'.format(
                     self.session_name))
                 sessions.delete_session(self.session_name)
@@ -364,7 +364,7 @@ class Batch(object):
     @property
     def overdue(self):
         """True if the batch has been waiting too long"""
-        if (time.time() - self.batch_window_start) > options.batch_window:
+        if (time.monotonic() - self.batch_window_start) > options.batch_window:
             return True
         return False
 
