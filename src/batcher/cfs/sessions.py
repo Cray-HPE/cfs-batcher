@@ -24,10 +24,10 @@
 import ujson as json
 import logging
 from time import sleep
-import uuid
+from typing import Optional
 
 from csm_utils.logging import compact_response_text, exc_type_msg
-from requests.exceptions import HTTPError, ConnectionError
+from requests.exceptions import HTTPError, ConnectionError, ReadTimeout
 from urllib3.exceptions import MaxRetryError
 
 from batcher.client import requests_retry_session
@@ -107,30 +107,49 @@ def get_sessions(parameters=None):
     return data
 
 
-def create_session(config, config_limit='', components=[], tags=None):
-    """Create a configuration (CFS) session"""
-    success = False
-    name = 'batcher-' + str(uuid.uuid4())
+def create_session(
+    session_name: str,
+    config: str,
+    config_limit: str = '',
+    components: list[str] = [],
+    tags: Optional[str] = None,
+) -> bool:
+    """
+    Create a configuration (CFS) session
+    Return True if successful OR if the session already exists
+    Return False otherwise
+
+    Batcher uses UUIDs for session names, and the number of possible UUIDs
+    is so vast that we can safely ignore the possibility that an existing
+    session was not created by us.
+    """
     ansible_limit = ','.join(components)
-    data = {'name': name,
+    data = {'name': session_name,
             'configuration_name': config,
             'configuration_limit': config_limit,
             'ansible_limit': ansible_limit,
             'target': {'definition': 'dynamic'}}
     if tags:
         data['tags'] = tags
-    LOGGER.debug('Submitting a session to CFS: {}'.format(data))
+    LOGGER.debug("Submitting a session to CFS: %s", data)
     session = requests_retry_session()
     try:
         response = session.post(ENDPOINT, json=data)
+        LOGGER.debug("New session response=%s", compact_response_text(response.text))
         response.raise_for_status()
-        success = True
-    except (ConnectionError, MaxRetryError) as e:
-        LOGGER.error("Unable to connect to CFS: %s", exc_type_msg(e))
-    except HTTPError as e:
-        LOGGER.error("Unexpected response from CFS: %s", exc_type_msg(e))
-    LOGGER.debug("New session response=%s", compact_response_text(response.text))
-    return success, name
+        return True
+    except (ConnectionError, MaxRetryError, ReadTimeout) as err:
+        LOGGER.error("Unable to connect to CFS: %s", exc_type_msg(err))
+    except HTTPError as err:
+        if err.response.status_code == 409:
+            # This means we succeeded in creating the session previously, but
+            # failed to record that fact. This can be the case when the
+            # request times out. In this case, we just report success.
+            LOGGER.debug(exc_type_msg(err))
+            LOGGER.info("CFS session '%s' already exists", session_name)
+            return True
+        LOGGER.error("Unexpected response from CFS: %s", exc_type_msg(err))
+    return False
 
 
 def delete_session(name):

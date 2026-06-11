@@ -25,6 +25,7 @@ from collections import defaultdict, deque
 from functools import partial
 import logging
 import time
+import uuid
 
 from csm_utils.logging import exc_type_msg
 from requests.exceptions import HTTPError
@@ -202,6 +203,7 @@ class Batch(object):
         self.config_name = component.config_name
         self.config_limit = component.config_limit
         self.session_name = ''
+        self._session_name = None
         self.batch_start = None  # Starts when the session is sent/loaded
         self.batch_window_start = time.time()
 
@@ -228,25 +230,35 @@ class Batch(object):
         """Add a component if possible"""
         if component in self.components:
             return True  # The component is already in this batch
-        if len(self.components) < options.batch_size and not self.session_name:
+        if len(self.components) < options.batch_size and not self._session_name:
             self.components.add(component)
             return True
         return False
 
     def try_send(self):
         """Create a config session for the batch if needed and possible"""
-        if not self.session_name and (self.full or self.overdue):
-            tags = self._get_tags()
-            success, session_name = sessions.create_session(
-                config=self.config_name,
-                config_limit=self.config_limit,
-                components=self.component_ids,
-                tags=tags)
-            if success:
-                self.session_name = session_name
-                self.batch_start = time.time()
-            return success
-        return False
+        if self.session_name:
+            # Session has already been created
+            return False
+        if not any([self.full, self.overdue, self._session_name]):
+            # Not full, not overdue, and we have not previously tried to create it
+            return False
+        # If we get here, we should create it
+        tags = self._get_tags()
+        if self._session_name is None:
+            self._session_name = 'batcher-' + str(uuid.uuid4())
+        if not sessions.create_session(session_name=self._session_name,
+                                       config=self.config_name,
+                                       config_limit=self.config_limit,
+                                       components=self.component_ids,
+                                       tags=tags):
+            # Session create failed
+            return False
+
+        # Session create succeeded
+        self.session_name = self._session_name
+        self.batch_start = time.time()
+        return True
 
     def check_complete(self):
         """Cleanup the batch/session if the CFS session is complete"""
