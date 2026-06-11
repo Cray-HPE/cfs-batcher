@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevent additions to the batch
 - If session creation fails because the session already exists, treat it as a success
 - Use `time.monotonic()` instead of `time.time()`, to avoid clock change edge cases
+- Increase read timeout used for requests to avoid unnecessary timeouts
 
 ## [1.14.3] - 05/20/2026
 
