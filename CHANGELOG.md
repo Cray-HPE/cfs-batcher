@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- When first trying to create a session for a batch, if it fails:
+  - Remember the session name and re-use it for the next create attempt
+  - Prevent additions to the batch
+- If session creation fails because the session already exists, treat it as a success
+
 ## [1.14.3] - 05/20/2026
 
 ### Dependencies
