@@ -1,7 +1,7 @@
 #
 # MIT License
 #
-# (C) Copyright 2020-2022, 2024 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2020-2026 Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -27,4 +27,4 @@ from requests_retry_session import requests_retry_session as base_requests_retry
 
 from . import PROTOCOL
 
-requests_retry_session = partial(base_requests_retry_session, protocol=PROTOCOL)
+requests_retry_session = partial(base_requests_retry_session, protocol=PROTOCOL, read_timeout=15)
