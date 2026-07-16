@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- CASMCMS-9646: Instead of sleeping for the entire `batcher_check_interval` in one
+  interrupted block, set a maximum sleep time. In between sleeps, update the CFS options,
+  in case the `logging_level` or `batcher_check_interval` have changed. If needed,
+  recalculate the remaining necessary sleep time, and sleep for another chunk of time.
+  By default, the maximum sleep time is 60 seconds, but this can be overridden with the
+  `MAX_SLEEP_SECONDS` environment variable.
+
 ## [1.15.0] - 06/11/2026
 
 ### Changed

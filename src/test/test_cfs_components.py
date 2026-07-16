@@ -22,7 +22,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 import unittest
-from batcher.cfs.components import ENDPOINT
 
 
 class InfrastructureTest(unittest.TestCase):

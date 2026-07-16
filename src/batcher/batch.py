@@ -22,7 +22,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 from collections import defaultdict, deque
-from functools import partial
 import logging
 import time
 import uuid
@@ -162,9 +161,9 @@ class BatchManager(object):
 
         if time.monotonic() - self.backoff_start >= self.current_backoff:  # The previous backoff expired
             if self.current_backoff == 0:
-                self.current_backoff = min(options.max_backoff, STARTING_BACKOFF)
+                self.current_backoff = min(options.batcher_max_backoff, STARTING_BACKOFF)
             else:
-                self.current_backoff = min(options.max_backoff, self.current_backoff * 2)
+                self.current_backoff = min(options.batcher_max_backoff, self.current_backoff * 2)
             LOGGER.warning('The {} most recent configuration sessions have failed. Halting session '
                            'creation for {} seconds'.format(RECENT_SESSIONS_SIZE,
                                                             self.current_backoff))
@@ -274,7 +273,7 @@ class Batch(object):
             elif status == 'deleted':
                 LOGGER.info('Session {} no longer exists'.format(self.session_name))
                 complete = True
-            elif status == 'pending' and (time.monotonic() - self.batch_start > options.pending_timeout):
+            elif status == 'pending' and (time.monotonic() - self.batch_start > options.batcher_pending_timeout):
                 LOGGER.warning('Session {} is stuck in pending and will be deleted.'.format(
                     self.session_name))
                 sessions.delete_session(self.session_name)
