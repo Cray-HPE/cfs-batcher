@@ -4,7 +4,8 @@
 --extra-index-url http://artifactory.algol60.net/artifactory/csm-python-modules/simple
 -c constraints.txt
 
-csm-utils
+# Need csm-utils at least 0.2, since that is when the wait_interval submodule was added
+csm-utils>=0.2
 kubernetes
 requests
 requests_retry_session

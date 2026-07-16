@@ -22,7 +22,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 import unittest
-import batcher
 
 
 class InfrastructureTest(unittest.TestCase):

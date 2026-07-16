@@ -71,6 +71,7 @@ class Options():
 
     def _read_options(self):
         """Retrieves the current options from the CFS api"""
+        LOGGER.debug("Getting latest CFS option values")
         session = requests_retry_session()
         try:
             response = session.get(ENDPOINT)
@@ -119,15 +120,15 @@ class Options():
         return self.get_option('default_playbook', str)
 
     @property
-    def max_backoff(self):
+    def batcher_max_backoff(self):
         return self.get_option('batcher_max_backoff', int)
 
     @property
-    def disable(self):
+    def batcher_disable(self):
         return self.get_option('batcher_disable', bool)
 
     @property
-    def pending_timeout(self):
+    def batcher_pending_timeout(self):
         return self.get_option('batcher_pending_timeout', int)
 
     @property
